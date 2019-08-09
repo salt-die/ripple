@@ -7,7 +7,7 @@ click on window to create a ripple
 'r' to reset
 'j' to jostle
 """
-from numpy import array, zeros, pad, dstack, roll, copy
+from numpy import array, zeros, pad, dstack, roll, copy, clip
 import pygame
 from pygame.mouse import get_pos
 
@@ -46,10 +46,16 @@ def ripples():
     def color(surface_array):
         """
         Returns colors based on the values of surface_array.
+
+        Alternatively to clipped, one can take the absolute value of
+        surface array and clip from 0 to scale.
         """
+        clipped = clip(surface_array, -scale / 2, scale / 2)
+        clipped += scale / 2
+        #clipped = clip(abs(surface_array), 0, scale)
         color_1 = (65, 234, 186)
         color_2 = (13, 29, 135)
-        return dstack([(abs(surface_array) * (c2 - c1) / scale + c1).astype(int)\
+        return dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
                        for c1, c2 in zip(color_1, color_2)])
 
     def get_user_input():
@@ -64,7 +70,7 @@ def ripples():
                 running = False
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
-                    surface_array[get_pos()] += scale * 10
+                    surface_array[get_pos()] += scale * 5
             elif event.type == 2: #key down
                 if event.key == 114: #r
                     surface_array = zeros((int(window_dim[0]),\
