@@ -71,7 +71,10 @@ def ripples():
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
                     x, y = get_pos()
-                    surface_array[x - 4:x + 5, y - 4:y + 5] -= poke
+                    try:
+                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke
+                    except ValueError:
+                        print("Poked too close to border.")
             elif event.type == 2: #key down
                 if event.key == 114: #r
                     surface_array = np.zeros(window_dim)
