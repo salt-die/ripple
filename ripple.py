@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Simulated damped ripples.
+Simulates damped ripples.
 
 click on window to create a ripple
 'r' to reset
