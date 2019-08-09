@@ -3,7 +3,7 @@
 """
 Simulated damped ripples.
 """
-from numpy import array, zeros, pad, clip, dstack
+from numpy import array, zeros, pad, clip, dstack, concatenate
 import pygame
 from pygame.mouse import get_pos
 
@@ -16,14 +16,15 @@ def ripples():
 
         nonlocal surface_array
         old_array = pad(surface_array, 1, pad_with) #pad borders with zeros
+        shift_left = concatenate((old_array.T[-1:],old_array.T[:-1])).T
+        shift_right = concatenate((old_array.T[1:],old_array.T[:1])).T
+        shift_up = concatenate((old_array[1:],old_array[:1]))
+        shift_down = concatenate((old_array[-1:],old_array[:-1]))
 
-        for x in range(surface_array.shape[0]):
-            for y in range(surface_array.shape[1]):
-                surface_array[x][y] = (old_array[x][y + 1] +\
-                                       old_array[x + 1][y + 2] +\
-                                       old_array[x + 2][y + 1] +\
-                                       old_array[x + 1][y]) / 2 -\
-                                      old_array[x + 1][y + 1]
+        surface_array = ((shift_left +\
+                          shift_right +\
+                          shift_up +\
+                          shift_down) / 2)[1:-1,1:-1] - surface_array
 
         surface_array *= .5 #damp waves
 
