@@ -12,14 +12,14 @@ If you want to adjust settings, try:
     pad constant in update_array
     damping constant in update_array
     force constant in user_input
-    scale in ripples, though scale seems mostly arbitrary
+    scale in ripple, though scale seems mostly arbitrary
     color_1, color_2 in color
 """
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
 
-def ripples():
+def ripple():
     """
     Simulates ripples on a surface.
     """
@@ -125,8 +125,8 @@ def main():
     Starts the simulation. Ends the simulation.
     """
     pygame.init()
-    pygame.display.set_caption('ripples')
-    ripples()
+    pygame.display.set_caption('ripple')
+    ripple()
     pygame.quit()
 
 if __name__ == "__main__":
