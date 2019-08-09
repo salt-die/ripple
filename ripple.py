@@ -47,14 +47,14 @@ def ripples():
         clipped prevents weird things from happening should a surface_array
         value be outside the range of our scale.
 
-        The commented code is an alternative clippng method. Ripples appear to
+        The commented code is an alternative clipping method. Ripples appear to
         not interfere with each other with the alternative method.
         """
         #clipped = np.clip(surface_array, -scale / 2, scale / 2)
         #clipped += scale / 2
         clipped = np.clip(abs(surface_array), 0, scale)
-        color_1 = (65, 234, 186)
-        color_2 = (13, 29, 135)
+        color_1 = (63, 63, 63)
+        color_2 = (255, 255, 255)
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
                           for c1, c2 in zip(color_1, color_2)])
 
