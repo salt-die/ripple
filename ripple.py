@@ -40,7 +40,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .96 #damp waves
+        surface_array *= .94 #damp waves
 
         temp = old_array
         old_array = surface_array
@@ -77,7 +77,8 @@ def ripples():
                 running = False
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
-                    surface_array[get_pos()] += scale * 25
+                    x, y = get_pos()
+                    surface_array[x - 4:x + 4, y - 4:y + 4] -= scale
             elif event.type == 2: #key down
                 if event.key == 114: #r
                     surface_array = zeros(window_dim)
