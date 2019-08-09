@@ -6,6 +6,13 @@ Simulates damped ripples.
 click on window to create a ripple
 'r' to reset
 'j' to jostle
+
+If you want to adjust settings, try:
+    damping constant in update_array
+    poke force in user_input
+    scale in ripples()
+    color_1, color2 in color()
+    clipping method in color() -- the commented code
 """
 import numpy as np
 import pygame
