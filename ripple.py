@@ -10,9 +10,9 @@ click on window to create a ripple
 If you want to adjust settings, try:
     damping constant in update_array
     poke force in user_input
-    scale in ripples()
-    color_1, color2 in color()
-    clipping method in color() -- the commented code
+    scale in ripples
+    color_1, color_2 in color
+    clipping method (commented code) in color
 """
 import numpy as np
 import pygame
@@ -40,7 +40,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .99 #damp waves -- feel free to tweak this constant
+        surface_array *= .98 #damp waves -- feel free to tweak this constant
 
         temp = old_array
         old_array = surface_array
