@@ -62,7 +62,7 @@ def ripple():
 
     def get_user_input():
         """
-        Takes care of clicks and close events.
+        Takes care of clicks, key presses, and close events.
         """
         nonlocal surface_array
         nonlocal old_array
