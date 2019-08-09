@@ -32,7 +32,7 @@ def ripples():
         """
         nonlocal surface_array
         nonlocal old_array
-        pad = 2
+        pad = 1 #needs to be an int > 0--lower for slower, smoother the ripples
         padded_array = np.pad(old_array, pad, 'constant')
         shift_left = np.roll(padded_array, -pad, axis=1)[pad:-pad, pad:-pad]
         shift_right = np.roll(padded_array, pad, axis=1)[pad:-pad, pad:-pad]
