@@ -9,7 +9,7 @@ click on window to create a ripple
 'i' to toggle interference
 
 If you want to adjust settings, try:
-    weights matrix in update_array
+    convolution kernel (weights) in update_array
     damping constant in update_array
     force constant in user_input
     color_1, color_2 in color
@@ -35,7 +35,7 @@ def ripple():
         #mode='wrap' if one wants periodic boundary conditions
         surface_array = nd.convolve(old_array, weights, mode='constant')\
                         / (np.sum(weights) / 2) - surface_array
-        surface_array *= .98 #damp waves--constant should be between 0 and 1
+        surface_array *= .99 #damp waves--constant should be between 0 and 1
 
         temp = old_array
         old_array = surface_array
@@ -73,7 +73,7 @@ def ripple():
                 if event.button == 1: #left-Click
                     x, y = get_pos()
                     try:
-                        force = 2
+                        force = 1
                         surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
                     except ValueError:
                         print("Poked too close to border.")
@@ -94,15 +94,15 @@ def ripple():
     old_array = np.copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
     scale = 1000 #scale is arbitrary, but should be greater than 0
-    poke = np.array([[0,   0,   1/6, 1/5, 1/4, 1/5, 1/6, 0,   0  ],\
-                     [0,   1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0  ],\
+    poke = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],\
+                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
                      [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
-                     [1/5, 1/2, 1/3, 1/2, 1,   1/2, 1/3, 1/4, 1/5],\
-                     [1/4, 1/3, 1/2, 1,   1,   1,   1/2, 1/3, 1/4],\
-                     [1/5, 1/2, 1/3, 1/2, 1,   1/2, 1/3, 1/4, 1/5],\
+                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],\
+                     [1/4, 1/3, 1/2, 1.0, 1.0, 1.0, 1/2, 1/3, 1/4],\
+                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],\
                      [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
-                     [0,   1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0  ],\
-                     [0,   0,   1/6, 1/5, 1/4, 1/5, 1/6, 0,   0  ]])
+                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
+                     [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
     poke *= scale
     interference = True
     #Main Loop----------------------------------------------------------------
