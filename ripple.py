@@ -47,12 +47,13 @@ def ripples():
         clipped prevents weird things from happening should a surface_array
         value be outside the range of our scale.
 
-        Alternatively to current clipped, one can take the absolute value of
-        surface array and clip from 0 to scale.
+        The commented code is an alternative clippng method. Pick according to
+        your taste. (If uncommenting remember to comment out current clipped
+        line.)
         """
-        clipped = np.clip(surface_array, -scale / 2, scale / 2)
-        clipped += scale / 2
-        #clipped = clip(abs(surface_array), 0, scale)
+        #clipped = np.clip(surface_array, -scale / 2, scale / 2)
+        #clipped += scale / 2
+        clipped = np.clip(abs(surface_array), 0, scale)
         color_1 = (65, 234, 186)
         color_2 = (13, 29, 135)
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
