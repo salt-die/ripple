@@ -8,6 +8,7 @@ click on window to create a ripple
 'j' to jostle
 
 If you want to adjust settings, try:
+    pad constant in update_array
     damping constant in update_array
     poke force in user_input
     scale in ripples
@@ -31,12 +32,12 @@ def ripples():
         """
         nonlocal surface_array
         nonlocal old_array
-
-        padded_array = np.pad(old_array, 1, 'constant') #pad borders with zeros
-        shift_left = np.roll(padded_array, -1, axis=1)[1:-1, 1:-1]
-        shift_right = np.roll(padded_array, 1, axis=1)[1:-1, 1:-1]
-        shift_up = np.roll(padded_array, -1, axis=0)[1:-1, 1:-1]
-        shift_down = np.roll(padded_array, 1, axis=0)[1:-1, 1:-1]
+        pad = 1
+        padded_array = np.pad(old_array, pad, 'constant') #pad borders with zeros
+        shift_left = np.roll(padded_array, -pad, axis=1)[pad:-pad, pad:-pad]
+        shift_right = np.roll(padded_array, pad, axis=1)[pad:-pad, pad:-pad]
+        shift_up = np.roll(padded_array, -pad, axis=0)[pad:-pad, pad:-pad]
+        shift_down = np.roll(padded_array, pad, axis=0)[pad:-pad, pad:-pad]
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
