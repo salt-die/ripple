@@ -6,6 +6,7 @@ Simulates damped ripples.
 click on window to create a ripple
 'r' to reset
 'j' to jostle
+'i' to toggle interference
 
 If you want to adjust settings, try:
     pad constant in update_array
@@ -54,13 +55,12 @@ def ripples():
 
         clipped prevents weird things from happening should a surface_array
         value be outside the range of our scale.
-
-        The commented code is an alternative clipping method. Ripples appear to
-        not interfere with each other with the alternative method.
         """
-        #clipped = np.clip(surface_array, -scale / 2, scale / 2)
-        #clipped += scale / 2
-        clipped = np.clip(abs(surface_array), 0, scale)
+        if interfering:
+            clipped = np.clip(abs(surface_array), 0, scale)
+        else:
+            clipped = np.clip(surface_array, -scale / 2, scale / 2)
+            clipped += scale / 2
         color_1 = (63, 63, 63)
         color_2 = (255, 255, 255)
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
@@ -85,14 +85,17 @@ def ripples():
                     except ValueError:
                         print("Poked too close to border.")
             elif event.type == 2: #key down
-                if event.key == 114: #r
+                if event.key == 114: #r for reset
                     surface_array = np.zeros(window_dim)
                     old_array = np.copy(surface_array)
                 elif event.key == 106: #j for jostle
                     surface_array = np.zeros(window_dim)
+                elif event.key == 105: #i for interfering
+                    nonlocal interfering
+                    interfering = not interfering
 
     #Game variables-----------------------------------------------------------
-    window_dim = [500, 500]
+    window_dim = [600, 600]
     window = pygame.display.set_mode(window_dim)
     surface_array = np.zeros(window_dim)
     old_array = np.copy(surface_array)
@@ -108,6 +111,7 @@ def ripples():
                      [0,   1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 0  ],\
                      [0,   0,   1/5, 1/4, 1/3, 1/4, 1/5, 0,   0  ]])
     poke *= scale
+    interfering = True
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
