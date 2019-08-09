@@ -9,6 +9,7 @@ click on window to create a ripple
 'i' to toggle interference
 
 If you want to adjust settings, try:
+    weights matrix in update_array
     damping constant in update_array
     force constant in user_input
     scale in ripple, though scale seems mostly arbitrary
@@ -32,12 +33,12 @@ def ripple():
         """
         nonlocal surface_array
         nonlocal old_array
-        weights = np.array([[0, 1, 0],\
+        weights = np.array([[1, 1, 1],\
                             [1, 0, 1],\
-                            [0, 1, 0]])
+                            [1, 1, 1]])
 
-        surface_array = nd.convolve(old_array, weights, mode='constant') / 2\
-                        - surface_array
+        surface_array = nd.convolve(old_array, weights, mode='constant')\
+                        / (np.sum(weights) / 2) - surface_array
         surface_array *= .98 #damp waves--constant should be between 0 and 1
 
         temp = old_array
