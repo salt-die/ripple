@@ -61,8 +61,8 @@ def ripples():
         else:
             clipped = np.clip(surface_array, -scale / 2, scale / 2)
             clipped += scale / 2
-        color_1 = (35, 221, 221)
-        color_2 = (16, 38, 89)
+        color_1 = (16, 38, 89)
+        color_2 = (35, 221, 221)
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
                           for c1, c2 in zip(color_1, color_2)])
 
