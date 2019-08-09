@@ -65,25 +65,36 @@ def ripple():
         """
         nonlocal surface_array
         nonlocal old_array
+        nonlocal mouse_down
         for event in pygame.event.get():
-            if event.type == 12: #quit
+            if event.type == pygame.QUIT:
                 nonlocal running
                 running = False
-            elif event.type == 5: #mouse down
-                if event.button == 1: #left-Click
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == pygame.BUTTON_LEFT:
+                    mouse_down = True
                     x, y = get_pos()
                     try:
-                        force = 1
+                        force = 2.5
                         surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
                     except ValueError:
                         print("Poked too close to border.")
-            elif event.type == 2: #key down
-                if event.key == 114: #r for reset
+            elif event.type == pygame.MOUSEBUTTONUP:
+                mouse_down  = False
+            elif event.type == pygame.MOUSEMOTION and mouse_down:
+                    x, y = get_pos()
+                    try:
+                        force = .1
+                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
+                    except ValueError:
+                        print("Poked too close to border.")
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
                     surface_array = np.zeros(window_dim)
                     old_array = np.copy(surface_array)
-                elif event.key == 106: #j for jostle
+                elif event.key == pygame.K_j:
                     surface_array = np.zeros(window_dim)
-                elif event.key == 105: #i for interference
+                elif event.key == pygame.K_i:
                     nonlocal interference
                     interference = not interference
 
@@ -105,6 +116,7 @@ def ripple():
                      [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
     poke *= scale
     interference = True
+    mouse_down = False
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
