@@ -10,7 +10,7 @@ click on window to create a ripple
 If you want to adjust settings, try:
     pad constant in update_array
     damping constant in update_array
-    poke force in user_input
+    force constant in user_input
     scale in ripples
     color_1, color_2 in color
     clipping method (commented code) in color
@@ -32,8 +32,8 @@ def ripples():
         """
         nonlocal surface_array
         nonlocal old_array
-        pad = 1
-        padded_array = np.pad(old_array, pad, 'constant') #pad borders with zeros
+        pad = 2
+        padded_array = np.pad(old_array, pad, 'constant')
         shift_left = np.roll(padded_array, -pad, axis=1)[pad:-pad, pad:-pad]
         shift_right = np.roll(padded_array, pad, axis=1)[pad:-pad, pad:-pad]
         shift_up = np.roll(padded_array, -pad, axis=0)[pad:-pad, pad:-pad]
@@ -41,7 +41,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .98 #damp waves -- feel free to tweak this constant
+        surface_array *= .98 #damp waves -- constant should be between 0 and 1
 
         temp = old_array
         old_array = surface_array
@@ -80,7 +80,8 @@ def ripples():
                 if event.button == 1: #left-Click
                     x, y = get_pos()
                     try:
-                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke
+                        force = 1
+                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
                     except ValueError:
                         print("Poked too close to border.")
             elif event.type == 2: #key down
