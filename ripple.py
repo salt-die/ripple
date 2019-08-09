@@ -33,7 +33,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .96 #damp waves
+        surface_array *= .99 #damp waves -- feel free to tweak this constant
 
         temp = old_array
         old_array = surface_array
@@ -47,9 +47,8 @@ def ripples():
         clipped prevents weird things from happening should a surface_array
         value be outside the range of our scale.
 
-        The commented code is an alternative clippng method. Pick according to
-        your taste. (If uncommenting remember to comment out current clipped
-        line.)
+        The commented code is an alternative clippng method. Ripples appear to
+        not interfere with each other with the alternative method.
         """
         #clipped = np.clip(surface_array, -scale / 2, scale / 2)
         #clipped += scale / 2
