@@ -18,6 +18,9 @@ def ripples():
     def update_array():
         """
         Ripple physics.
+
+        We could avoid the padded_array if we wanted periodic boundary
+        conditions.
         """
         def pad_naughts(vector, pad_width, iaxis, kwargs):
             """
@@ -37,7 +40,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .99 #damp waves
+        surface_array *= .98 #damp waves
 
         temp = old_array
         old_array = surface_array
@@ -73,16 +76,15 @@ def ripples():
                     surface_array[get_pos()] += scale * 5
             elif event.type == 2: #key down
                 if event.key == 114: #r
-                    surface_array = zeros((int(window_dim[0]),\
-                                           int(window_dim[1])))
+                    surface_array = zeros(window_dim)
                     old_array = copy(surface_array)
                 elif event.key == 106: #j for jostle
-                    surface_array = zeros((int(window_dim[0]),\
-                                           int(window_dim[1])))
+                    surface_array = zeros(window_dim)
+
     #Game variables-----------------------------------------------------------
-    window_dim = array([500.0, 500.0])
-    window = pygame.display.set_mode(window_dim.astype(int))
-    surface_array = zeros((int(window_dim[0]), int(window_dim[1])))
+    window_dim = [500, 500]
+    window = pygame.display.set_mode(window_dim)
+    surface_array = zeros(window_dim)
     old_array = copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
     scale = 10000
