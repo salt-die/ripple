@@ -14,7 +14,6 @@ If you want to adjust settings, try:
     force constant in user_input
     scale in ripples, though scale seems mostly arbitrary
     color_1, color_2 in color
-    clipping method (commented code) in color
 """
 import numpy as np
 import pygame
