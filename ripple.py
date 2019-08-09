@@ -42,7 +42,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .98 #damp waves -- constant should be between 0 and 1
+        surface_array *= .98 #damp waves--constant should be between 0 and 1
 
         temp = old_array
         old_array = surface_array
