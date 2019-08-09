@@ -7,7 +7,7 @@ click on window to create a ripple
 'r' to reset
 'j' to jostle
 """
-from numpy import array, zeros, pad, dstack, roll, copy, clip
+from numpy import zeros, pad, dstack, roll, copy, clip
 import pygame
 from pygame.mouse import get_pos
 
@@ -20,14 +20,14 @@ def ripples():
         Ripple physics.
 
         We could avoid the padded_array if we wanted periodic boundary
-        conditions.
+        conditions, but I enjoy the ripples bouncing off the boundaries.
         """
-        def pad_naughts(vector, pad_width, iaxis, kwargs):
+        def pad_naughts(row, pad_width, iaxis, kwargs):
             """
             Extra arguments needed for compatibility with numpy.
             """
-            vector[:pad_width[0]] = 0
-            vector[-pad_width[1]:] = 0
+            row[:pad_width[0]] = 0
+            row[-pad_width[1]:] = 0
 
         nonlocal surface_array
         nonlocal old_array
@@ -40,7 +40,7 @@ def ripples():
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
-        surface_array *= .98 #damp waves
+        surface_array *= .96 #damp waves
 
         temp = old_array
         old_array = surface_array
@@ -48,9 +48,13 @@ def ripples():
 
     def color(surface_array):
         """
-        Returns colors based on the values of surface_array.
+        Returns colors based on the values of surface_array. This is just a
+        linear interpolation between color_1 and color_2.
 
-        Alternatively to clipped, one can take the absolute value of
+        clipped prevents weird things from happening should a surface_array
+        value be outside the range of our scale.
+
+        Alternatively to current clipped, one can take the absolute value of
         surface array and clip from 0 to scale.
         """
         clipped = clip(surface_array, -scale / 2, scale / 2)
@@ -73,7 +77,7 @@ def ripples():
                 running = False
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
-                    surface_array[get_pos()] += scale * 5
+                    surface_array[get_pos()] += scale * 25
             elif event.type == 2: #key down
                 if event.key == 114: #r
                     surface_array = zeros(window_dim)
