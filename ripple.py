@@ -59,12 +59,21 @@ def ripple():
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
                           for c1, c2 in zip(color_1, color_2)])
 
+    def poke(mouse_x, mouse_y, force):
+        """
+        Creates the start of a ripple.
+        """
+        nonlocal surface_array
+        try:
+            surface_array[mouse_x - 4:mouse_x + 5,\
+                          mouse_y - 4:mouse_y + 5] -= drop * force
+        except ValueError:
+            print("Poked too close to border.")
+
     def get_user_input():
         """
         Takes care of clicks, key presses, and close events.
         """
-        nonlocal surface_array
-        nonlocal old_array
         nonlocal mouse_down
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,23 +82,15 @@ def ripple():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
                     mouse_down = True
-                    x, y = get_pos()
-                    try:
-                        force = 2.5
-                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
-                    except ValueError:
-                        print("Poked too close to border.")
+                    poke(*get_pos(), 2.5)
             elif event.type == pygame.MOUSEBUTTONUP:
-                mouse_down  = False
+                mouse_down = False
             elif event.type == pygame.MOUSEMOTION and mouse_down:
-                    x, y = get_pos()
-                    try:
-                        force = .1
-                        surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
-                    except ValueError:
-                        print("Poked too close to border.")
+                poke(*get_pos(), .1)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
+                    nonlocal surface_array
+                    nonlocal old_array
                     surface_array = np.zeros(window_dim)
                     old_array = np.copy(surface_array)
                 elif event.key == pygame.K_j:
@@ -105,7 +106,8 @@ def ripple():
     old_array = np.copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
     scale = 1000 #scale is arbitrary, but should be greater than 0
-    poke = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],\
+    #drop determines the shape of a poke; square pokes are unsightly
+    drop = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],\
                      [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
                      [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
                      [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],\
@@ -114,7 +116,7 @@ def ripple():
                      [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
                      [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
                      [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
-    poke *= scale
+    drop *= scale
     interference = True
     mouse_down = False
     #Main Loop----------------------------------------------------------------
