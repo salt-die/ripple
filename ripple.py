@@ -9,7 +9,6 @@ click on window to create a ripple
 'i' to toggle interference
 
 If you want to adjust settings, try:
-    pad constant in update_array
     damping constant in update_array
     force constant in user_input
     scale in ripple, though scale seems mostly arbitrary
@@ -18,6 +17,7 @@ If you want to adjust settings, try:
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
+import scipy.ndimage as nd
 
 def ripple():
     """
@@ -32,14 +32,11 @@ def ripple():
         """
         nonlocal surface_array
         nonlocal old_array
-        pad = 1 #needs to be an int > 0--lower for slower, smoother ripples
-        padded_array = np.pad(old_array, pad, 'constant')
-        shift_left = np.roll(padded_array, -pad, axis=1)[pad:-pad, pad:-pad]
-        shift_right = np.roll(padded_array, pad, axis=1)[pad:-pad, pad:-pad]
-        shift_up = np.roll(padded_array, -pad, axis=0)[pad:-pad, pad:-pad]
-        shift_down = np.roll(padded_array, pad, axis=0)[pad:-pad, pad:-pad]
+        weights = np.array([[0, 1, 0],\
+                            [1, 0, 1],\
+                            [0, 1, 0]])
 
-        surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
+        surface_array = nd.convolve(old_array, weights, mode='constant') / 2\
                         - surface_array
         surface_array *= .98 #damp waves--constant should be between 0 and 1
 
