@@ -11,7 +11,7 @@ If you want to adjust settings, try:
     pad constant in update_array
     damping constant in update_array
     force constant in user_input
-    scale in ripples
+    scale in ripples, though scale seems mostly arbitrary
     color_1, color_2 in color
     clipping method (commented code) in color
 """
