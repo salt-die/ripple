@@ -27,16 +27,13 @@ def ripple():
     def update_array():
         """
         Ripple physics.
-
-        We could avoid the padded_array if we wanted periodic boundary
-        conditions, but I enjoy the ripples bouncing off the boundaries.
         """
         nonlocal surface_array
         nonlocal old_array
         weights = np.array([[1, 1, 1],\
                             [1, 0, 1],\
                             [1, 1, 1]])
-
+        #mode='periodic' if one wants periodic boundary conditions
         surface_array = nd.convolve(old_array, weights, mode='constant')\
                         / (np.sum(weights) / 2) - surface_array
         surface_array *= .98 #damp waves--constant should be between 0 and 1
