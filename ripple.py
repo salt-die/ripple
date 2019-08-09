@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 Simulated damped ripples.
+
+click on window to create a ripple
+'r' to reset
+'j' to jostle
 """
-from numpy import array, zeros, pad, clip, dstack, roll
+from numpy import array, zeros, pad, dstack, roll, copy
 import pygame
 from pygame.mouse import get_pos
 
@@ -23,20 +27,21 @@ def ripples():
             vector[-pad_width[1]:] = 0
 
         nonlocal surface_array
-        old_array = pad(surface_array, 1, pad_naughts) #pad borders with zeros
-        shift_left = roll(old_array, -1, axis=1)
-        shift_right = roll(old_array, 1, axis=1)
-        shift_up = roll(old_array, -1, axis=0)
-        shift_down = roll(old_array, 1, axis=0)
+        nonlocal old_array
 
-        surface_array = ((shift_left +\
-                          shift_right +\
-                          shift_up +\
-                          shift_down) / 2)[1:-1, 1:-1] - surface_array
+        padded_array = pad(old_array, 1, pad_naughts) #pad borders with zeros
+        shift_left = roll(padded_array, -1, axis=1)[1:-1, 1:-1]
+        shift_right = roll(padded_array, 1, axis=1)[1:-1, 1:-1]
+        shift_up = roll(padded_array, -1, axis=0)[1:-1, 1:-1]
+        shift_down = roll(padded_array, 1, axis=0)[1:-1, 1:-1]
 
-        surface_array *= .86 #damp waves
-        clip(surface_array, -scale/2, scale/2, surface_array)
-        #surface_array[abs(surface_array) < .1] = 0
+        surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
+                        - surface_array
+        surface_array *= .99 #damp waves
+
+        temp = old_array
+        old_array = surface_array
+        surface_array = temp
 
     def color(surface_array):
         """
@@ -52,25 +57,29 @@ def ripples():
         Takes care of clicks and close events.
         """
         nonlocal surface_array
+        nonlocal old_array
         for event in pygame.event.get():
             if event.type == 12: #quit
                 nonlocal running
                 running = False
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
-                    surface_array[get_pos()] += 100
+                    surface_array[get_pos()] += scale * 10
             elif event.type == 2: #key down
-                if event.key == 114:
-                    
+                if event.key == 114: #r
                     surface_array = zeros((int(window_dim[0]),\
                                            int(window_dim[1])))
-
+                    old_array = copy(surface_array)
+                elif event.key == 106: #j for jostle
+                    surface_array = zeros((int(window_dim[0]),\
+                                           int(window_dim[1])))
     #Game variables-----------------------------------------------------------
     window_dim = array([500.0, 500.0])
     window = pygame.display.set_mode(window_dim.astype(int))
     surface_array = zeros((int(window_dim[0]), int(window_dim[1])))
+    old_array = copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
-    scale = 1000
+    scale = 10000
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
