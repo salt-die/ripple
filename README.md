@@ -1,6 +1,6 @@
 ![ripple preview](preview.gif)
 # ripple
-simulation of ripples on a surface
+simulation of ripples on a surface (requires pygame)
 
 Left-click in the window to create new ripples.
 
