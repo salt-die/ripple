@@ -56,7 +56,7 @@ def ripples():
         clipped prevents weird things from happening should a surface_array
         value be outside the range of our scale.
         """
-        if interfering:
+        if interference:
             clipped = np.clip(abs(surface_array), 0, scale)
         else:
             clipped = np.clip(surface_array, -scale / 2, scale / 2)
@@ -80,7 +80,7 @@ def ripples():
                 if event.button == 1: #left-Click
                     x, y = get_pos()
                     try:
-                        force = 1
+                        force = 2
                         surface_array[x - 4:x + 5, y - 4:y + 5] -= poke * force
                     except ValueError:
                         print("Poked too close to border.")
@@ -90,12 +90,12 @@ def ripples():
                     old_array = np.copy(surface_array)
                 elif event.key == 106: #j for jostle
                     surface_array = np.zeros(window_dim)
-                elif event.key == 105: #i for interfering
-                    nonlocal interfering
-                    interfering = not interfering
+                elif event.key == 105: #i for interference
+                    nonlocal interference
+                    interference = not interference
 
     #Game variables-----------------------------------------------------------
-    window_dim = [600, 600]
+    window_dim = [500, 500]
     window = pygame.display.set_mode(window_dim)
     surface_array = np.zeros(window_dim)
     old_array = np.copy(surface_array)
@@ -111,7 +111,7 @@ def ripples():
                      [0,   1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 0  ],\
                      [0,   0,   1/5, 1/4, 1/3, 1/4, 1/5, 0,   0  ]])
     poke *= scale
-    interfering = True
+    interference = True
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
