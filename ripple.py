@@ -22,17 +22,10 @@ def ripples():
         We could avoid the padded_array if we wanted periodic boundary
         conditions, but I enjoy the ripples bouncing off the boundaries.
         """
-        def pad_naughts(row, pad_width, iaxis, kwargs):
-            """
-            Extra arguments needed for compatibility with numpy.
-            """
-            row[:pad_width[0]] = 0
-            row[-pad_width[1]:] = 0
-
         nonlocal surface_array
         nonlocal old_array
 
-        padded_array = pad(old_array, 1, pad_naughts) #pad borders with zeros
+        padded_array = pad(old_array, 1, 'constant') #pad borders with zeros
         shift_left = roll(padded_array, -1, axis=1)[1:-1, 1:-1]
         shift_right = roll(padded_array, 1, axis=1)[1:-1, 1:-1]
         shift_up = roll(padded_array, -1, axis=0)[1:-1, 1:-1]
