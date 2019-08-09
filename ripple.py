@@ -12,7 +12,6 @@ If you want to adjust settings, try:
     weights matrix in update_array
     damping constant in update_array
     force constant in user_input
-    scale in ripple, though scale seems mostly arbitrary
     color_1, color_2 in color
 """
 import numpy as np
@@ -33,7 +32,7 @@ def ripple():
         weights = np.array([[1, 1, 1],\
                             [1, 0, 1],\
                             [1, 1, 1]])
-        #mode='periodic' if one wants periodic boundary conditions
+        #mode='wrap' if one wants periodic boundary conditions
         surface_array = nd.convolve(old_array, weights, mode='constant')\
                         / (np.sum(weights) / 2) - surface_array
         surface_array *= .98 #damp waves--constant should be between 0 and 1
@@ -94,7 +93,7 @@ def ripple():
     surface_array = np.zeros(window_dim)
     old_array = np.copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
-    scale = 10000
+    scale = 1000 #scale is arbitrary, but should be greater than 0
     poke = np.array([[0,   0,   1/6, 1/5, 1/4, 1/5, 1/6, 0,   0  ],\
                      [0,   1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0  ],\
                      [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
