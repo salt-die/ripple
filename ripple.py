@@ -1,59 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Simulate dampled ripples.
+Simulated damped ripples.
 """
-from numpy import array, zeros, copy
+from numpy import array, zeros, pad, clip, dstack
 import pygame
 from pygame.mouse import get_pos
 
 def ripples():
 
-
     def update_array():
-        nonlocal surface_array
-        nonlocal old_array
-        old_array = copy(surface_array)
-        max_x = surface_array.shape[0]
-        max_y = surface_array.shape[1]
-        #update interior
-        def get_value(x, y):
-            if  x < 0 or x > max_x:
-                return 0
-            elif y < 0 or y > max_y:
-                return 0
-            return old_array[x][y]
+        def pad_with(vector, pad_width, iaxis, kwargs):
+            vector[:pad_width[0]] = 0
+            vector[-pad_width[1]:] = 0
 
-        for x in range(1, surface_array.shape[0]-1):
-            for y in range(1, surface_array.shape[1]-1):
-                surface_array[x][y] = (get_value[x - 1][y] +\
-                                       get_value[x][y + 1] +\
-                                       get_value[x + 1][y] +\
-                                       get_value[x][y - 1]) / 4 -\
-                                      get_value[x][y]
+        nonlocal surface_array
+        old_array = pad(surface_array, 1, pad_with) #pad borders with zeros
+
+        for x in range(surface_array.shape[0]):
+            for y in range(surface_array.shape[1]):
+                surface_array[x][y] = (old_array[x][y + 1] +\
+                                       old_array[x + 1][y + 2] +\
+                                       old_array[x + 2][y + 1] +\
+                                       old_array[x + 1][y]) / 2 -\
+                                      old_array[x + 1][y + 1]
+
+        surface_array *= .5 #damp waves
 
     def color(surface_array):
-        pass
-
-    def poke_array(loc):
-        nonlocal surface_array
-        x, y = loc
-        surface_array[x][y] +=100
+        scale = 100
+        clipped = clip(surface_array, -scale // 2, scale // 2)
+        clipped += scale // 2
+        color_1 = (65, 234, 186)
+        color_2 = (13, 29, 135)
+        return dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
+                       for c1, c2 in zip(color_1, color_2)])
 
     def get_user_input():
         for event in pygame.event.get():
-            if event.type == 12: #Quit
+            if event.type == 12: #quit
                 nonlocal running
                 running = False
-            elif event.type == 5: #Mouse down
+            elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
-                    poke_array(get_pos())
+                    surface_array[get_pos()] +=100
 
     #Game variables-----------------------------------------------------------
-    window_dim = array([800.0, 800.0])
+    window_dim = array([100.0, 100.0])
     window = pygame.display.set_mode(window_dim.astype(int))
     surface_array = zeros((int(window_dim[0]),int(window_dim[1])))
-    old_array = copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
 
     #Main Loop----------------------------------------------------------------
