@@ -1,3 +1,4 @@
+![ripple preview](preview.gif)
 # ripple
 simulation of ripples on a surface
 
