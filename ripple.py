@@ -7,7 +7,7 @@ click on window to create a ripple
 'r' to reset
 'j' to jostle
 """
-from numpy import zeros, pad, dstack, roll, copy, clip
+import numpy as np
 import pygame
 from pygame.mouse import get_pos
 
@@ -25,11 +25,11 @@ def ripples():
         nonlocal surface_array
         nonlocal old_array
 
-        padded_array = pad(old_array, 1, 'constant') #pad borders with zeros
-        shift_left = roll(padded_array, -1, axis=1)[1:-1, 1:-1]
-        shift_right = roll(padded_array, 1, axis=1)[1:-1, 1:-1]
-        shift_up = roll(padded_array, -1, axis=0)[1:-1, 1:-1]
-        shift_down = roll(padded_array, 1, axis=0)[1:-1, 1:-1]
+        padded_array = np.pad(old_array, 1, 'constant') #pad borders with zeros
+        shift_left = np.roll(padded_array, -1, axis=1)[1:-1, 1:-1]
+        shift_right = np.roll(padded_array, 1, axis=1)[1:-1, 1:-1]
+        shift_up = np.roll(padded_array, -1, axis=0)[1:-1, 1:-1]
+        shift_down = np.roll(padded_array, 1, axis=0)[1:-1, 1:-1]
 
         surface_array = (shift_left + shift_right + shift_up + shift_down) / 2\
                         - surface_array
@@ -50,13 +50,13 @@ def ripples():
         Alternatively to current clipped, one can take the absolute value of
         surface array and clip from 0 to scale.
         """
-        clipped = clip(surface_array, -scale / 2, scale / 2)
+        clipped = np.clip(surface_array, -scale / 2, scale / 2)
         clipped += scale / 2
         #clipped = clip(abs(surface_array), 0, scale)
         color_1 = (65, 234, 186)
         color_2 = (13, 29, 135)
-        return dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
-                       for c1, c2 in zip(color_1, color_2)])
+        return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
+                          for c1, c2 in zip(color_1, color_2)])
 
     def get_user_input():
         """
@@ -71,21 +71,31 @@ def ripples():
             elif event.type == 5: #mouse down
                 if event.button == 1: #left-Click
                     x, y = get_pos()
-                    surface_array[x - 4:x + 4, y - 4:y + 4] -= scale
+                    surface_array[x - 4:x + 5, y - 4:y + 5] -= poke
             elif event.type == 2: #key down
                 if event.key == 114: #r
-                    surface_array = zeros(window_dim)
-                    old_array = copy(surface_array)
+                    surface_array = np.zeros(window_dim)
+                    old_array = np.copy(surface_array)
                 elif event.key == 106: #j for jostle
-                    surface_array = zeros(window_dim)
+                    surface_array = np.zeros(window_dim)
 
     #Game variables-----------------------------------------------------------
     window_dim = [500, 500]
     window = pygame.display.set_mode(window_dim)
-    surface_array = zeros(window_dim)
-    old_array = copy(surface_array)
+    surface_array = np.zeros(window_dim)
+    old_array = np.copy(surface_array)
     clock = pygame.time.Clock() #For limiting fps
     scale = 10000
+    poke = np.array([[0, 0, 1/2, 3/4, 1, 3/4, 1/2, 0, 0],\
+                    [0, 1/4, 1/2, 3/4, 1, 3/4, 1/2, 1/4, 0],\
+                    [1/4, 1/2, 3/4, 1, 1, 1, 3/4, 1/2, 1/4],\
+                    [1/2, 3/4, 1, 1, 1, 1, 1, 3/4, 1/2],\
+                    [3/4, 1, 1, 1, 1, 1, 1, 1, 3/4],\
+                    [1/2, 3/4, 1, 1, 1, 1, 1, 3/4, 1/2],\
+                    [1/4, 1/2, 3/4, 1, 1, 1, 3/4, 1/2, 1/4],\
+                    [0, 1/4, 1/2, 3/4, 1, 3/4, 1/2, 1/4, 0],\
+                    [0, 0, 1/2, 3/4, 1, 3/4, 1/2, 0, 0]])
+    poke *= scale
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
