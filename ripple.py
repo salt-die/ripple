@@ -19,7 +19,6 @@ import numpy as np
 import pygame
 from pygame.mouse import get_pos
 import scipy.ndimage as nd
-from random import random
 
 def ripple():
     """
@@ -65,11 +64,11 @@ def ripple():
         nonlocal surface_array
         nonlocal interference
         nonlocal now
-        if random() < .05:
-            poke(int(random() * window_dim[0]),\
-                 int(random() * window_dim[1]),\
-                 10 * random())
-        if random() < .0018:
+        if np.random.random() < .05:
+            poke(int(np.random.random() * window_dim[0]),\
+                 int(np.random.random() * window_dim[1]),\
+                 10 * np.random.random())
+        if np.random.random() < .0018:
             surface_array = np.zeros(window_dim)
         if pygame.time.get_ticks() - now > 30000:
             now = pygame.time.get_ticks()
