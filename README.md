@@ -3,10 +3,12 @@
 Simulation of ripples on a surface. (requires pygame, scipy)
 
 
-Left-click in the window to create new ripples.
+click or click-and-hold to create ripples
 
 'r' resets the simulation
 
 'j' jostles the ripples
 
 'i' toggles interference
+
+'a' toggles automatic ripples
