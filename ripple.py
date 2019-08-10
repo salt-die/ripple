@@ -12,7 +12,7 @@ click or click-and-hold to create ripples
 If you want to adjust settings, try:
     convolution kernel (weights) in update_array
     damping constant in update_array
-    force constant in user_input
+    force parameter in poke calls
     color_1, color_2 in color
 """
 import numpy as np
