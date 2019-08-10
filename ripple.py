@@ -3,10 +3,11 @@
 """
 Simulates damped ripples.
 
-click on window to create a ripple
+click or click-and-hold to create ripples
 'r' to reset
 'j' to jostle
 'i' to toggle interference
+'a' to toggle automatic ripples
 
 If you want to adjust settings, try:
     convolution kernel (weights) in update_array
@@ -18,6 +19,7 @@ import numpy as np
 import pygame
 from pygame.mouse import get_pos
 import scipy.ndimage as nd
+from random import random
 
 def ripple():
     """
@@ -68,7 +70,8 @@ def ripple():
             surface_array[mouse_x - 4:mouse_x + 5,\
                           mouse_y - 4:mouse_y + 5] -= drop * force
         except ValueError:
-            print("Poked too close to border.")
+            #print("Poked too close to border.")
+            pass
 
     def get_user_input():
         """
@@ -98,6 +101,9 @@ def ripple():
                 elif event.key == pygame.K_i:
                     nonlocal interference
                     interference = not interference
+                elif event.key == pygame.K_a:
+                    nonlocal auto
+                    auto = not auto
 
     #Game variables-----------------------------------------------------------
     window_dim = [500, 500]
@@ -119,12 +125,18 @@ def ripple():
     drop *= scale
     interference = True
     mouse_down = False
+    auto = False
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
         update_array()
         pygame.surfarray.blit_array(window, color(surface_array))
         get_user_input()
+        if auto:
+            if random() < .05:
+                poke(int(random() * window_dim[0]),\
+                     int(random() * window_dim[1]),\
+                     10 * random())
         clock.tick(40)  #Limit frames per second (Comment out if you'd like)
         pygame.display.update()
 
