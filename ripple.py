@@ -61,6 +61,20 @@ def ripple():
         return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
                           for c1, c2 in zip(color_1, color_2)])
 
+    def automatic_ripples():
+        nonlocal surface_array
+        nonlocal interference
+        nonlocal now
+        if random() < .05:
+            poke(int(random() * window_dim[0]),\
+                 int(random() * window_dim[1]),\
+                 10 * random())
+        if random() < .0018:
+            surface_array = np.zeros(window_dim)
+        if pygame.time.get_ticks() - now > 30000:
+            now = pygame.time.get_ticks()
+            interference = not interference
+
     def poke(mouse_x, mouse_y, force):
         """
         Creates the start of a ripple.
@@ -104,6 +118,9 @@ def ripple():
                 elif event.key == pygame.K_a:
                     nonlocal auto
                     auto = not auto
+                    if auto:
+                        nonlocal now
+                        now = pygame.time.get_ticks()
 
     #Game variables-----------------------------------------------------------
     window_dim = [500, 500]
@@ -126,6 +143,7 @@ def ripple():
     interference = True
     mouse_down = False
     auto = False
+    now = 0
     #Main Loop----------------------------------------------------------------
     running = True
     while running:
@@ -133,10 +151,7 @@ def ripple():
         pygame.surfarray.blit_array(window, color(surface_array))
         get_user_input()
         if auto:
-            if random() < .05:
-                poke(int(random() * window_dim[0]),\
-                     int(random() * window_dim[1]),\
-                     10 * random())
+            automatic_ripples()
         clock.tick(40)  #Limit frames per second (Comment out if you'd like)
         pygame.display.update()
 
