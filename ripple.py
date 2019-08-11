@@ -101,8 +101,6 @@ def ripple():
                     poke(*get_pos(), 2.5)
             elif event.type == pygame.MOUSEBUTTONUP:
                 mouse_down = False
-            elif event.type == pygame.MOUSEMOTION and mouse_down:
-                poke(*get_pos(), .1)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     nonlocal surface_array
@@ -151,6 +149,8 @@ def ripple():
         get_user_input()
         if auto:
             automatic_ripples()
+        if mouse_down:
+            poke(*get_pos(), .1)
         clock.tick(40)  #Limit frames per second (Comment out if you'd like)
         pygame.display.update()
 
