@@ -18,7 +18,8 @@ If you want to adjust settings, try:
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
-import scipy.ndimage as nd
+import cv2
+#import scipy.ndimage as nd
 
 def ripple():
     """
@@ -33,9 +34,12 @@ def ripple():
         weights = np.array([[1, 1, 1],\
                             [1, 0, 1],\
                             [1, 1, 1]])
+        surface_array = cv2.filter2D(old_array, ddepth=-1, kernel=weights,\
+                                 borderType=1) / (np.sum(weights) / 2) -\
+                                 surface_array
         #mode='wrap' if one wants periodic boundary conditions
-        surface_array = nd.convolve(old_array, weights, mode='constant')\
-                        / (np.sum(weights) / 2) - surface_array
+        #surface_array = nd.convolve(old_array, weights, mode='constant')\
+        #                / (np.sum(weights) / 2) - surface_array
         surface_array *= .99 #damp waves--constant should be between 0 and 1
 
         temp = old_array
