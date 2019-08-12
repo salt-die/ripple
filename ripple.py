@@ -42,9 +42,6 @@ def ripple():
         #                / (np.sum(weights) / 2) - surface_array
         surface_array *= .99 #damp waves--constant should be between 0 and 1
 
-#        temp = old_array
-#        old_array = surface_array
-#        surface_array = temp
         old_array, surface_array = surface_array, old_array
 
     def color(surface_array):
