@@ -37,6 +37,7 @@ def ripple():
         surface_array = cv2.filter2D(old_array, ddepth=-1, kernel=weights,\
                                  borderType=1) / (np.sum(weights) / 2) -\
                                  surface_array
+        #Alternatively, use scipy convolution:
         #mode='wrap' if one wants periodic boundary conditions
         #surface_array = nd.convolve(old_array, weights, mode='constant')\
         #                / (np.sum(weights) / 2) - surface_array
