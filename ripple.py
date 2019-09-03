@@ -31,16 +31,13 @@ def ripple():
         """
         nonlocal surface_array
         nonlocal old_array
-        weights = np.array([[1, 1, 1],\
-                            [1, 0, 1],\
-                            [1, 1, 1]])
-        surface_array = cv2.filter2D(old_array, ddepth=-1, kernel=weights,\
-                                 borderType=1) / (np.sum(weights) / 2) -\
-                                 surface_array
+
+        surface_array = cv2.filter2D(old_array, ddepth=-1, kernel=kernel,
+                                     borderType=1) - surface_array
         #Alternatively, use scipy convolution:
         #mode='wrap' if one wants periodic boundary conditions
         #surface_array = nd.convolve(old_array, weights, mode='constant')\
-        #                / (np.sum(weights) / 2) - surface_array
+        #                - surface_array
         surface_array *= .99 #damp waves--constant should be between 0 and 1
 
         old_array, surface_array = surface_array, old_array
@@ -60,7 +57,7 @@ def ripple():
             clipped += scale / 2
         color_1 = (16, 38, 89)
         color_2 = (35, 221, 221)
-        return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)\
+        return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)
                           for c1, c2 in zip(color_1, color_2)])
 
     def automatic_ripples():
@@ -130,15 +127,18 @@ def ripple():
     clock = pygame.time.Clock() #For limiting fps
     scale = 1000 #scale is arbitrary, but should be greater than 0
     #drop determines the shape of a poke; square pokes are unsightly
-    drop = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],\
-                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
-                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
-                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],\
-                     [1/4, 1/3, 1/2, 1.0, 1.0, 1.0, 1/2, 1/3, 1/4],\
-                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],\
-                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],\
-                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],\
+    drop = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
+                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
+                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
+                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
+                     [1/4, 1/3, 1/2, 1.0, 1.0, 1.0, 1/2, 1/3, 1/4],
+                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
+                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
+                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
                      [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
+    kernel = np.array([[0.25, 0.25, 0.25],
+                       [0.25,  0.0, 0.25],
+                       [0.25, 0.25, 0.25]])
     drop *= scale
     interference = True
     mouse_down = False
