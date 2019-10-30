@@ -63,7 +63,7 @@ class ripple:
     def color(self):
         """
         Returns colors based on the values of surface_array. This is just a
-        linear interpolation between color_1 and color_2.
+        linear interpolation between COLOR_1 and COLOR_2.
 
         clipped prevents weird things from happening should a surface_array
         value be outside the range 0-1.
