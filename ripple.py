@@ -7,7 +7,6 @@ click or click-and-hold to create ripples
 'i' to toggle interference
 'a' to toggle automatic ripples
 """
-
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
@@ -33,6 +32,7 @@ RGBs = tuple(zip(COLOR_1, COLOR_2))
 
 POKE_FORCE = 2.5
 DRAG_FORCE = .1
+
 
 class ripple:
     """
@@ -134,6 +134,7 @@ class ripple:
                 self.poke(*get_pos(), DRAG_FORCE)
             pygame.display.update()
         pygame.quit()
+
 
 if __name__ == "__main__":
     ripple((500,500)).start()
