@@ -6,13 +6,8 @@ click or click-and-hold to create ripples
 'j' to jostle
 'i' to toggle interference
 'a' to toggle automatic ripples
-
-If you want to adjust settings, try:
-    convolution kernel (weights) in update_array
-    damping constant in update_array
-    force parameter in poke calls
-    color_1, color_2 in color
 """
+
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
@@ -31,9 +26,13 @@ DROP = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
 KERNEL = np.array([[0.25, 0.25, 0.25],
                    [0.25,  0.0, 0.25],
                    [0.25, 0.25, 0.25]])
+
 COLOR_1 = (16, 38, 89)
 COLOR_2 = (35, 221, 221)
 RGBs = tuple(zip(COLOR_1, COLOR_2))
+
+POKE_FORCE = 2.5
+DRAG_FORCE = .1
 
 class ripple:
     """
@@ -106,7 +105,7 @@ class ripple:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
                     self.mouse_down = True
-                    self.poke(*get_pos(), 2.5)
+                    self.poke(*get_pos(), POKE_FORCE)
             elif event.type == pygame.MOUSEBUTTONUP:
                 self.mouse_down = False
             elif event.type == pygame.KEYDOWN:
@@ -132,7 +131,7 @@ class ripple:
             if self.auto:
                 self.automatic_ripples()
             if self.mouse_down:
-                self.poke(*get_pos(), .1)
+                self.poke(*get_pos(), DRAG_FORCE)
             pygame.display.update()
         pygame.quit()
 
