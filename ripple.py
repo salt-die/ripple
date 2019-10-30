@@ -92,7 +92,6 @@ class ripple:
         try:
             self.surface_array[mouse_x - 4:mouse_x + 5,
                                mouse_y - 4:mouse_y + 5] -= DROP * force
-
         except ValueError:
             pass
 
