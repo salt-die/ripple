@@ -31,7 +31,9 @@ DROP = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
 KERNEL = np.array([[0.25, 0.25, 0.25],
                    [0.25,  0.0, 0.25],
                    [0.25, 0.25, 0.25]])
-
+COLOR_1 = (16, 38, 89)
+COLOR_2 = (35, 221, 221)
+RGBs = tuple(zip(COLOR_1, COLOR_2))
 
 class ripple:
     """
@@ -53,12 +55,9 @@ class ripple:
         """
         Ripple physics.
         """
-
         self.surface_array = cv2.filter2D(self.old_array, ddepth=-1, kernel=KERNEL,
                                           borderType=1) - self.surface_array
-
         self.surface_array *= .99 #damp waves--constant should be between 0 and 1
-
         self.old_array, self.surface_array = self.surface_array, self.old_array
 
     def color(self):
@@ -74,10 +73,7 @@ class ripple:
         else:
             clipped = np.clip(self.surface_array, -.5, .5)
             clipped += .5
-        color_1 = (16, 38, 89)
-        color_2 = (35, 221, 221)
-        return np.dstack([(clipped * (c2 - c1) + c1).astype(int)
-                          for c1, c2 in zip(color_1, color_2)])
+        return np.dstack([(clipped * (c2 - c1) + c1).astype(int) for c1, c2 in RGBs])
 
     def automatic_ripples(self):
         if np.random.random() < .05:
@@ -95,7 +91,8 @@ class ripple:
         Creates the start of a ripple.
         """
         try:
-            self.surface_array[mouse_x - 4:mouse_x + 5, mouse_y - 4:mouse_y + 5] -= DROP * force
+            self.surface_array[mouse_x - 4:mouse_x + 5,
+                               mouse_y - 4:mouse_y + 5] -= DROP * force
         except ValueError:
             pass
 
