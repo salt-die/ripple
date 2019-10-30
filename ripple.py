@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Simulates damped ripples.
 
@@ -97,8 +95,7 @@ class ripple:
         Creates the start of a ripple.
         """
         try:
-            self.surface_array[mouse_x - 4:mouse_x + 5,\
-                               mouse_y - 4:mouse_y + 5] -= DROP * force
+            self.surface_array[mouse_x - 4:mouse_x + 5, mouse_y - 4:mouse_y + 5] -= DROP * force
         except ValueError:
             pass
 
