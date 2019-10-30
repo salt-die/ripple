@@ -19,152 +19,128 @@ import numpy as np
 import pygame
 from pygame.mouse import get_pos
 import cv2
-#import scipy.ndimage as nd
 
-def ripple():
+#DROP determines the shape of a poke; square pokes are unsightly
+DROP = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
+                 [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
+                 [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
+                 [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
+                 [1/4, 1/3, 1/2, 1.0, 1.0, 1.0, 1/2, 1/3, 1/4],
+                 [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
+                 [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
+                 [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
+                 [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
+KERNEL = np.array([[0.25, 0.25, 0.25],
+                   [0.25,  0.0, 0.25],
+                   [0.25, 0.25, 0.25]])
+
+
+class ripple:
     """
     Simulates ripples on a surface.
     """
-    def update_array():
+    def __init__(self, dim):
+        self.dim = dim
+        self.window = pygame.display.set_mode(dim)
+        self.surface_array = np.zeros(dim)
+        self.old_array = np.zeros(dim)
+
+        self.interference = True
+        self.mouse_down = False
+        self.auto = False
+        self.now = 0
+        self.running = True
+
+    def update_array(self):
         """
         Ripple physics.
         """
-        nonlocal surface_array
-        nonlocal old_array
 
-        surface_array = cv2.filter2D(old_array, ddepth=-1, kernel=kernel,
-                                     borderType=1) - surface_array
-        #Alternatively, use scipy convolution:
-        #mode='wrap' if one wants periodic boundary conditions
-        #surface_array = nd.convolve(old_array, weights, mode='constant')\
-        #                - surface_array
-        surface_array *= .99 #damp waves--constant should be between 0 and 1
+        self.surface_array = cv2.filter2D(self.old_array, ddepth=-1, kernel=KERNEL,
+                                          borderType=1) - self.surface_array
 
-        old_array, surface_array = surface_array, old_array
+        self.surface_array *= .99 #damp waves--constant should be between 0 and 1
 
-    def color(surface_array):
+        self.old_array, self.surface_array = self.surface_array, self.old_array
+
+    def color(self):
         """
         Returns colors based on the values of surface_array. This is just a
         linear interpolation between color_1 and color_2.
 
         clipped prevents weird things from happening should a surface_array
-        value be outside the range of our scale.
+        value be outside the range 0-1.
         """
-        if interference:
-            clipped = np.clip(abs(surface_array), 0, scale)
+        if self.interference:
+            clipped = np.clip(abs(self.surface_array), 0, 1)
         else:
-            clipped = np.clip(surface_array, -scale / 2, scale / 2)
-            clipped += scale / 2
+            clipped = np.clip(self.surface_array, -.5, .5)
+            clipped += .5
         color_1 = (16, 38, 89)
         color_2 = (35, 221, 221)
-        return np.dstack([(clipped * (c2 - c1) / scale + c1).astype(int)
+        return np.dstack([(clipped * (c2 - c1) + c1).astype(int)
                           for c1, c2 in zip(color_1, color_2)])
 
-    def automatic_ripples():
-        nonlocal surface_array
-        nonlocal interference
-        nonlocal now
+    def automatic_ripples(self):
         if np.random.random() < .05:
-            poke(int(np.random.random() * window_dim[0]),\
-                 int(np.random.random() * window_dim[1]),\
-                 10 * np.random.random())
+            self.poke(int(np.random.random() * self.dim[0]),
+                      int(np.random.random() * self.dim[1]),
+                      10 * np.random.random())
         if np.random.random() < .0018:
-            surface_array = np.zeros(window_dim)
-        if pygame.time.get_ticks() - now > 30000:
-            now = pygame.time.get_ticks()
-            interference = not interference
+            self.surface_array = np.zeros(self.dim)
+        if pygame.time.get_ticks() - self.now > 30000:
+            self.now = pygame.time.get_ticks()
+            self.interference = not self.interference
 
-    def poke(mouse_x, mouse_y, force):
+    def poke(self, mouse_x, mouse_y, force):
         """
         Creates the start of a ripple.
         """
-        nonlocal surface_array
         try:
-            surface_array[mouse_x - 4:mouse_x + 5,\
-                          mouse_y - 4:mouse_y + 5] -= drop * force
+            self.surface_array[mouse_x - 4:mouse_x + 5,\
+                               mouse_y - 4:mouse_y + 5] -= DROP * force
         except ValueError:
-            #print("Poked too close to border.")
             pass
 
-    def get_user_input():
+    def get_user_input(self):
         """
         Takes care of clicks, key presses, and close events.
         """
-        nonlocal mouse_down
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                nonlocal running
-                running = False
+                self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
-                    mouse_down = True
-                    poke(*get_pos(), 2.5)
+                    self.mouse_down = True
+                    self.poke(*get_pos(), 2.5)
             elif event.type == pygame.MOUSEBUTTONUP:
-                mouse_down = False
+                self.mouse_down = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    nonlocal surface_array
-                    nonlocal old_array
-                    surface_array = np.zeros(window_dim)
-                    old_array = np.copy(surface_array)
+                    self.surface_array = np.zeros(self.dim)
+                    self.old_array = np.zeros(self.dim)
                 elif event.key == pygame.K_j:
-                    surface_array = np.zeros(window_dim)
+                    self.surface_array = np.zeros(self.dim)
                 elif event.key == pygame.K_i:
-                    nonlocal interference
-                    interference = not interference
+                    self.interference = not self.interference
                 elif event.key == pygame.K_a:
-                    nonlocal auto
-                    auto = not auto
-                    if auto:
-                        nonlocal now
-                        now = pygame.time.get_ticks()
+                    self.auto = not self.auto
+                    if self.auto:
+                        self.now = pygame.time.get_ticks()
 
-    #Game variables-----------------------------------------------------------
-    window_dim = [500, 500]
-    window = pygame.display.set_mode(window_dim)
-    surface_array = np.zeros(window_dim)
-    old_array = np.copy(surface_array)
-    clock = pygame.time.Clock() #For limiting fps
-    scale = 1000 #scale is arbitrary, but should be greater than 0
-    #drop determines the shape of a poke; square pokes are unsightly
-    drop = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
-                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
-                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
-                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
-                     [1/4, 1/3, 1/2, 1.0, 1.0, 1.0, 1/2, 1/3, 1/4],
-                     [1/5, 1/2, 1/3, 1/2, 1.0, 1/2, 1/3, 1/4, 1/5],
-                     [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
-                     [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
-                     [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
-    kernel = np.array([[0.25, 0.25, 0.25],
-                       [0.25,  0.0, 0.25],
-                       [0.25, 0.25, 0.25]])
-    drop *= scale
-    interference = True
-    mouse_down = False
-    auto = False
-    now = 0
-    #Main Loop----------------------------------------------------------------
-    running = True
-    while running:
-        update_array()
-        pygame.surfarray.blit_array(window, color(surface_array))
-        get_user_input()
-        if auto:
-            automatic_ripples()
-        if mouse_down:
-            poke(*get_pos(), .1)
-        clock.tick(40)  #Limit frames per second (Comment out if you'd like)
-        pygame.display.update()
-
-def main():
-    """
-    Starts the simulation. Ends the simulation.
-    """
-    pygame.init()
-    pygame.display.set_caption('ripple')
-    ripple()
-    pygame.quit()
+    def start(self):
+        pygame.init()
+        pygame.display.set_caption('ripple')
+        while self.running:
+            self.update_array()
+            pygame.surfarray.blit_array(self.window, self.color())
+            self.get_user_input()
+            if self.auto:
+                self.automatic_ripples()
+            if self.mouse_down:
+                self.poke(*get_pos(), .1)
+            pygame.display.update()
+        pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    ripple((500,500)).start()
