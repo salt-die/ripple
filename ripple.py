@@ -10,9 +10,9 @@ click or click-and-hold to create ripples
 import numpy as np
 import pygame
 from pygame.mouse import get_pos
-import cv2
+from scipy.ndimage import convolve
 
-#DROP determines the shape of a poke; square pokes are unsightly
+# DROP determines the shape of a poke; square pokes are unsightly
 DROP = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
                  [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
                  [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
@@ -22,23 +22,21 @@ DROP = np.array([[0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0],
                  [1/6, 1/5, 1/4, 1/3, 1/2, 1/3, 1/4, 1/5, 1/6],
                  [0.0, 1/6, 1/5, 1/4, 1/3, 1/4, 1/5, 1/6, 0.0],
                  [0.0, 0.0, 1/6, 1/5, 1/4, 1/5, 1/6, 0.0, 0.0]])
-KERNEL = np.array([[0.25, 0.25, 0.25],
-                   [0.25,  0.0, 0.25],
-                   [0.25, 0.25, 0.25]])
 
-COLOR_1 = (16, 38, 89)
-COLOR_2 = (35, 221, 221)
+KERNEL = .25 * np.array([[1.0, 1.0, 1.0],
+                         [1.0, 0.0, 1.0],
+                         [1.0, 1.0, 1.0]])
+
+COLOR_1 = 16, 38, 89
+COLOR_2 = 35, 221, 221
 RGBs = tuple(zip(COLOR_1, COLOR_2))
 
 POKE_FORCE = 2.5
 DRAG_FORCE = .1
 
 
-class ripple:
-    """
-    Simulates ripples on a surface.
-    """
-    def __init__(self, dim):
+class Ripple:
+    def __init__(self, *dim):
         self.dim = dim
         self.window = pygame.display.set_mode(dim)
         self.surface_array = np.zeros(dim)
@@ -51,69 +49,53 @@ class ripple:
         self.running = True
 
     def update_array(self):
-        """
-        Ripple physics.
-        """
-        self.surface_array = cv2.filter2D(self.old_array, ddepth=-1, kernel=KERNEL,
-                                          borderType=1) - self.surface_array
-        self.surface_array *= .99 #damp waves--constant should be between 0 and 1
+        self.surface_array = .99 * (convolve(self.old_array, KERNEL, mode="wrap") - self.surface_array)
         self.old_array, self.surface_array = self.surface_array, self.old_array
 
     def color(self):
         """
         Returns colors based on the values of surface_array. This is just a
         linear interpolation between COLOR_1 and COLOR_2.
-
-        clipped prevents weird things from happening should a surface_array
-        value be outside the range 0-1.
         """
         if self.interference:
             clipped = np.clip(abs(self.surface_array), 0, 1)
         else:
-            clipped = np.clip(self.surface_array, -.5, .5)
-            clipped += .5
+            clipped = np.clip(self.surface_array, -.5, .5) + .5
         return np.dstack([(clipped * (c2 - c1) + c1).astype(int) for c1, c2 in RGBs])
 
     def automatic_ripples(self):
         if np.random.random() < .05:
-            self.poke(int(np.random.random() * self.dim[0]),
-                      int(np.random.random() * self.dim[1]),
-                      10 * np.random.random())
+            self.poke(*(np.random.random(2) * self.dim).astype(int), 10 * np.random.random())
         if np.random.random() < .0018:
-            self.surface_array = np.zeros(self.dim)
+            self.surface_array[:] = 0
         if pygame.time.get_ticks() - self.now > 30000:
             self.now = pygame.time.get_ticks()
             self.interference = not self.interference
 
-    def poke(self, mouse_x, mouse_y, force):
-        """
-        Creates the start of a ripple.
-        """
+    def poke(self, x=None, y=None, force=POKE_FORCE):
+        if x is y is None:
+            x, y = get_pos()
         try:
-            self.surface_array[mouse_x - 4:mouse_x + 5,
-                               mouse_y - 4:mouse_y + 5] -= DROP * force
+            self.surface_array[x - 4: x + 5, y - 4: y + 5] -= DROP * force
         except ValueError:
             pass
 
-    def get_user_input(self):
-        """
-        Takes care of clicks, key presses, and close events.
-        """
+    def user_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
                     self.mouse_down = True
-                    self.poke(*get_pos(), POKE_FORCE)
+                    self.poke()
             elif event.type == pygame.MOUSEBUTTONUP:
                 self.mouse_down = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    self.surface_array = np.zeros(self.dim)
-                    self.old_array = np.zeros(self.dim)
+                    self.surface_array[:] = 0
+                    self.old_array[:] = 0
                 elif event.key == pygame.K_j:
-                    self.surface_array = np.zeros(self.dim)
+                    self.surface_array[:] = 0
                 elif event.key == pygame.K_i:
                     self.interference = not self.interference
                 elif event.key == pygame.K_a:
@@ -127,14 +109,14 @@ class ripple:
         while self.running:
             self.update_array()
             pygame.surfarray.blit_array(self.window, self.color())
-            self.get_user_input()
+            self.user_input()
             if self.auto:
                 self.automatic_ripples()
             if self.mouse_down:
-                self.poke(*get_pos(), DRAG_FORCE)
+                self.poke()
             pygame.display.update()
         pygame.quit()
 
 
 if __name__ == "__main__":
-    ripple((500,500)).start()
+    Ripple(500, 500).start()
